@@ -1,6 +1,6 @@
 MagicFileSelector
 =================
-An Android library project that provides a simple file chooser activity.
+An Android library project (Eclipse) that provides a simple file chooser activity.
 
 
 Using MagicFileSelector
@@ -27,3 +27,4 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		}
 }
 ```
+
