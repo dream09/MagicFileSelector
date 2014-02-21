@@ -3,12 +3,18 @@ package com.magic09.magicfileselector;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbException;
+import jcifs.smb.SmbFile;
+import jcifs.smb.SmbFileFilter;
 
 import com.magic09.magicfilechooser.R;
 
@@ -33,9 +39,11 @@ public class MagicFileSelector extends ListActivity {
 	
 	/* Variables */
 	private File currentDir;
+	private SmbFile currentSmb;
 	private FileArrayAdapter adapter;
 	private FilenameFilter filter;
 	private FileFilter folderFilter;
+	private SmbFileFilter smbFolderFilter;
 	
 	static final String TAG = "MagicFileSelector";
 	
@@ -43,6 +51,9 @@ public class MagicFileSelector extends ListActivity {
 	public static final String DATA_KEY_RETURN = "dataKeyReturn";
 	public static final String DATA_KEY_FOLDER = "dataKeyFolder";
 	public static final String DATA_KEY_FILTER = "dataKeyFilter";
+	public static final String DATA_KEY_IPADDRESS = "dataKeyIPAddress";
+	public static final String DATA_KEY_USERNAME = "dataKeyUsername";
+	public static final String DATA_KEY_PASSWORD = "dataKeyPassword";
 	
 	
 	
@@ -53,11 +64,19 @@ public class MagicFileSelector extends ListActivity {
 	 */
 	public MagicFileSelector() {
 		
-		// Setup the folder filter.
+		// Setup the folder filters.
 		folderFilter = new FileFilter() {
 			
 			@Override
 			public boolean accept(File pathname) {
+				return pathname.isDirectory();
+			}
+		};
+		
+		smbFolderFilter = new SmbFileFilter() {
+			
+			@Override
+			public boolean accept(SmbFile pathname) throws SmbException {
 				return pathname.isDirectory();
 			}
 		};
@@ -79,12 +98,33 @@ public class MagicFileSelector extends ListActivity {
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			
-			// Setup directory to browse.
 			String myFolder = extras.getString(DATA_KEY_FOLDER);
-			if (myFolder == null || myFolder.length() < 1) {
-				currentDir = new File(Environment.getExternalStorageDirectory().getPath());
-			} else {
+			String myIPAddress= extras.getString(DATA_KEY_IPADDRESS);
+			String myUsername= extras.getString(DATA_KEY_USERNAME);
+			String myPassword= extras.getString(DATA_KEY_PASSWORD);
+			
+			// Check if browsing locally (default) or on ipaddress.
+			if (myFolder != null && myFolder.length() > 0) {
 				currentDir = new File(extras.getString(DATA_KEY_FOLDER));
+			} else if (myIPAddress != null && myUsername != null && myPassword != null) {
+				
+				String smbURL = "smb://" + myIPAddress + "/";
+				NtlmPasswordAuthentication smbAuth = new NtlmPasswordAuthentication(null, myUsername, myPassword);
+
+				currentSmb = null;
+				try {
+					currentSmb = new SmbFile(smbURL, smbAuth);
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+					System.out.println("Authentication problem!");
+					
+					//TODO: create a bad username or password alert with try again option. 
+				}
+				
+				currentDir = null;
+				
+			} else {
+				currentDir = new File(Environment.getExternalStorageDirectory().getPath());
 			}
 			
 			// Setup the filename filter.
@@ -113,7 +153,11 @@ public class MagicFileSelector extends ListActivity {
 		}
 		
 		// Call populate
-		populateFileList(currentDir);
+		if (currentDir != null) {
+			populateFileList(currentDir);
+		} else if (currentSmb != null) {
+			populateSmbFileList(currentSmb);
+		}
 	}
 	
 	@Override
@@ -214,5 +258,54 @@ public class MagicFileSelector extends ListActivity {
 		adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, folders);
 		this.setListAdapter(adapter);
 	}
+	
+	
+	
+	/**
+	 * Method reads the current directory and populates the displayed
+	 * list.
+	 * @param f
+	 */
+	private void populateSmbFileList(SmbFile aFile)
+	{
+		// Set title to current directory.
+		this.setTitle(aFile.getPath());
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+		
+		// Setup arrays to hold folder list and file list.
+		List<FileDisplayLine>folders = new ArrayList<FileDisplayLine>();
+		List<FileDisplayLine>files = new ArrayList<FileDisplayLine>();
+		
+		// Try and loop folder and file list and populate our display lists.
+		try {
+			SmbFile[]filterDirs = aFile.listFiles(smbFolderFilter);
+			for (SmbFile loopDir : filterDirs) {
+				folders.add(new FileDisplayLine(loopDir.getName(), sdf.format(new Date(loopDir.lastModified())), loopDir.getCanonicalPath(), FileDisplayLine.FILETYPE_FOLDER, 0));
+			}
+			
+			SmbFile[]filterFiles = aFile.listFiles();
+			for (SmbFile loopFile : filterFiles) {
+				files.add(new FileDisplayLine(loopFile.getName(), sdf.format(new Date(loopFile.lastModified())), loopFile.getCanonicalPath(), FileDisplayLine.FILETYPE_FILE, loopFile.length()));
+			}
+		} catch (SmbException e) {
+			// TODO: Handle any exceptions.
+		}
+		
+		// Sort the directory and file lists then add the files onto the end of the directory list.
+		Collections.sort(folders);
+		Collections.sort(files);
+		folders.addAll(files);
+		
+		// Check if we need a parent director option.
+		if (!aFile.getName().equalsIgnoreCase(Environment.getExternalStorageDirectory().getName())) {
+			folders.add(0, new FileDisplayLine("..", "Parent Directory", aFile.getParent(), FileDisplayLine.FILETYPE_PARENT, 0));
+		}
+		
+		// Set the list adapter to display.
+		adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, folders);
+		this.setListAdapter(adapter);
+	}
+	
 	
 }
