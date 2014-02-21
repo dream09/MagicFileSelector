@@ -12,11 +12,13 @@ import java.util.Locale;
 
 import com.magic09.magicfilechooser.R;
 
+import android.app.ActionBar;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
@@ -69,6 +71,10 @@ public class MagicFileSelector extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		// Allow navigating up from the action bar.
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		
 		// Get data sent (if any).
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -108,6 +114,19 @@ public class MagicFileSelector extends ListActivity {
 		
 		// Call populate
 		populateFileList(currentDir);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		
+		// Handle a click on the navigation up item in the action bar.
+		case android.R.id.home:
+			finish();
+			return true;
+		}
+		
+		return super.onOptionsItemSelected(item);
 	}
 	
 	/**
