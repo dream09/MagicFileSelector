@@ -131,10 +131,12 @@ public class MagicFileSelector extends ListActivity {
 			final String myFilter = extras.getString(DATA_KEY_FILTER);
 			if (myFilter == null || myFilter.length() < 1 || myFilter.indexOf(".") == -1) {
 				filter = null;
-				if (myFilter.length() < 1) {
-					Log.d(TAG, "Filter specified as \"" + myFilter + "\", but length <1!");
-				} else if (myFilter.indexOf(".") == -1) {
-					Log.d(TAG, "Filter specified as \"" + myFilter + "\", but no \".\" could be found!");
+				if (myFilter != null) {
+					if (myFilter.length() < 1) {
+						Log.d(TAG, "Filter specified as \"" + myFilter + "\", but length <1!");
+					} else if (myFilter.indexOf(".") == -1) {
+						Log.d(TAG, "Filter specified as \"" + myFilter + "\", but no \".\" could be found!");
+					}
 				}
 			} else {
 				filter = new FilenameFilter() {
