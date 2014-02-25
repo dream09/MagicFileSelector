@@ -66,6 +66,8 @@ Using MagicFileSelector for SMB/CIFS file system
 public static final int FILE_REQUEST = 2
 
 Intent intent = new Intent(getActivity(), MagicFileSelector.class);
+String[] filters = {".csv", ".txt"};
+intent.putExtra(MagicFileSelector.DATA_FILTERS, filters);
 intent.putExtra(MagicFileSelector.DATA_KEY_IPADDRESS, ipaddress);
 intent.putExtra(MagicFileSelector.DATA_KEY_USERNAME, username);
 intent.putExtra(MagicFileSelector.DATA_KEY_PASSWORD, password);
