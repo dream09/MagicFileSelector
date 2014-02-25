@@ -27,24 +27,56 @@ Follow these steps to clone the source if you would like to use this project and
 15. Under *Android* options check the *Is Library* check box and click *OK*.
 
 
-Using MagicFileSelector
------------------------
+Using MagicFileSelector for local file system (eg sdcard)
+---------------------------------------------------------
 * Ensure you have imported the project as described above and that it is set as a library project.
 
 * Ensure your AndroidManifest.xml lists com.magic09.magicfileselector.MagicFileSelector as an activity.
 
 * Start the activity for a result passing any file type filter you require, for example:
 ```
+public static final int FILE_REQUEST = 2
+
 Intent intent = new Intent(getActivity(), MagicFileSelector.class);
 intent.putExtra(MagicFileSelector.DATA_KEY_FILTER, "*.csv");
-startActivityForResult(intent, MagicFileSelector.FILE_REQUEST);
+startActivityForResult(intent, FILE_REQUEST);
 ```
 
 * Handle the return using onActivityResult, for example:
 ```
 @Override
 public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if (requestCode == MagicFileSelector.FILE_REQUEST && resultCode == Activity.RESULT_OK) {
+    	if (requestCode == FILE_REQUEST && resultCode == Activity.RESULT_OK) {
+			if (data.hasExtra(MagicFileSelector.DATA_KEY_RETURN)) {
+				String filePath = data.getExtras().getString(MagicFileSelector.DATA_KEY_RETURN);
+			}
+		}
+}
+```
+
+
+Using MagicFileSelector for SMB/CIFS file system
+------------------------------------------------
+* Ensure you have imported the project as described above and that it is set as a library project.
+
+* Ensure your AndroidManifest.xml lists com.magic09.magicfileselector.MagicFileSelector as an activity.
+
+* Start the activity for a result passing any file type filter you require, for example:
+```
+public static final int FILE_REQUEST = 2
+
+Intent intent = new Intent(getActivity(), MagicFileSelector.class);
+intent.putExtra(MagicFileSelector.DATA_KEY_IPADDRESS, ipaddress);
+intent.putExtra(MagicFileSelector.DATA_KEY_USERNAME, username);
+intent.putExtra(MagicFileSelector.DATA_KEY_PASSWORD, password);
+startActivityForResult(intent, FILE_REQUEST);
+```
+
+* Handle the return using onActivityResult, for example:
+```
+@Override
+public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	if (requestCode == FILE_REQUEST && resultCode == Activity.RESULT_OK) {
 			if (data.hasExtra(MagicFileSelector.DATA_KEY_RETURN)) {
 				String filePath = data.getExtras().getString(MagicFileSelector.DATA_KEY_RETURN);
 			}
