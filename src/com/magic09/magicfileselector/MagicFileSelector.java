@@ -56,6 +56,7 @@ public class MagicFileSelector extends ListActivity {
 	public static final String DATA_KEY_RETURN = "dataKeyReturn";			// Key used to return data.
 	public static final String DATA_KEY_FOLDER = "dataKeyFolder";			// Key used to pass a start folder.
 	public static final String DATA_KEY_FILTER = "dataKeyFilter";			// Key used to pass a file filter.
+	public static final String DATA_KEY_FILTERS = "dataKeyFilters";			// Key used to pass multiple file filters.
 	public static final String DATA_KEY_IPADDRESS = "dataKeyIPAddress";		// Key used to pass an smb address.
 	public static final String DATA_KEY_USERNAME = "dataKeyUsername";		// Key used to pass a username for the smb address.
 	public static final String DATA_KEY_PASSWORD = "dataKeyPassword";		// Key used to pass a password for the smb address.
@@ -139,27 +140,40 @@ public class MagicFileSelector extends ListActivity {
 				currentDir = new File(Environment.getExternalStorageDirectory().getPath());
 			}
 			
-			//TODO: Handle file filter for smb.
-			
-			// Setup the filename filter.
-			final String myFilter = extras.getString(DATA_KEY_FILTER);
-			if (myFilter == null || myFilter.length() < 1 || myFilter.indexOf(".") == -1) {
-				filter = null;
-				if (myFilter != null) {
-					if (myFilter.length() < 1) {
-						Log.d(TAG, "Filter specified as \"" + myFilter + "\", but length <1!");
-					} else if (myFilter.indexOf(".") == -1) {
-						Log.d(TAG, "Filter specified as \"" + myFilter + "\", but no \".\" could be found!");
-					}
+			// Check for filters and setup as required.
+			String myFilter = extras.getString(DATA_KEY_FILTER);			// Holds any singular filter sent.
+			String[] myFilters = null;										// Used to produce a final list of filters.
+			String[] getFilters = extras.getStringArray(DATA_KEY_FILTERS);	// Holds any array of filters sent.
+			if (getFilters == null && myFilter != null) {
+				myFilters = new String[1];
+				myFilters[0] = myFilter;
+			} else if (getFilters != null && myFilter != null) {
+				myFilters = new String[getFilters.length + 1];
+				for (int i = 0; i < getFilters.length; i++) {
+					myFilters[i] = getFilters[i];
 				}
-			} else {
+				myFilters[getFilters.length] = myFilter;
+			}
+			
+			if (myFilters != null && myFilters.length > 0) {
+				
+				final String[] theFilters = myFilters;
 				
 				if (!SmbMode) {
 					filter = new FilenameFilter() {
 						
 						@Override
 						public boolean accept(File dir, String filename) {
-							return filename.toLowerCase(Locale.US).endsWith(myFilter);
+							
+							if (!dir.isFile())
+								return false;
+							
+							for (String filter : theFilters) {
+								if (filename.toLowerCase(Locale.US).endsWith(filter))
+								return true;
+							}
+							
+							return false;
 						}
 					};
 				} else {
@@ -172,7 +186,12 @@ public class MagicFileSelector extends ListActivity {
 								return false;
 							
 							String filename = arg0.getName();
-							return filename.toLowerCase(Locale.US).endsWith(myFilter);
+							for (String filter : theFilters) {
+								if (filename.toLowerCase(Locale.US).endsWith(filter))
+								return true;
+							}
+							
+							return false;
 						}
 					};
 					
