@@ -2,5 +2,6 @@
 
     <string name="app_name">Magic File Chooser</string>
     <string name="filechooser_icon_description">Content icon</string>
+    <string name="file_list_updating">Processing, please wait.</string>
 
 </resources>

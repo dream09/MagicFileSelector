@@ -20,7 +20,10 @@ import com.magic09.magicfilechooser.R;
 
 import android.app.ActionBar;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -213,7 +216,8 @@ public class MagicFileSelector extends ListActivity {
 			}
 		} else {
 			if (currentSmb != null) {
-				populateSmbFileList(currentSmb);
+				SMBRead smbReader = new SMBRead(this, smbURL);
+				smbReader.execute();
 			} else {
 				Log.e(TAG, "No SMB directory specified!");
 			}
@@ -242,12 +246,8 @@ public class MagicFileSelector extends ListActivity {
 		if (adapter.getCount() > 0 && adapter.getItem(0).getType() == FileDisplayLine.FILETYPE_PARENT) {
 			
 			if (SmbMode) {
-				try {
-					currentSmb = new SmbFile(adapter.getItem(0).getPath(), smbAuth);
-					populateSmbFileList(currentSmb);
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
+				SMBRead smbReader = new SMBRead(this, adapter.getItem(0).getPath());
+				smbReader.execute();
 			} else {	
 				currentDir = new File(adapter.getItem(0).getPath());
 				populateFileList(currentDir);
@@ -269,12 +269,8 @@ public class MagicFileSelector extends ListActivity {
 		if (o.getType() == FileDisplayLine.FILETYPE_FOLDER || o.getType() == FileDisplayLine.FILETYPE_PARENT) {
 			
 			if (SmbMode) {
-				try {
-					currentSmb = new SmbFile(o.getPath(), smbAuth);
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
-				populateSmbFileList(currentSmb);
+				SMBRead smbReader = new SMBRead(this, o.getPath());
+				smbReader.execute();
 			} else {
 				currentDir = new File(o.getPath());
 				populateFileList(currentDir);
@@ -340,15 +336,12 @@ public class MagicFileSelector extends ListActivity {
 	}
 	
 	/**
-	 * Method reads the current directory and populates the displayed
-	 * list.
+	 * Method reads the current directory and returns a
+	 * list of folders and files.
 	 * @param aFile
 	 */
-	private void populateSmbFileList(SmbFile aFile)
+	private List<FileDisplayLine> populateSmbFileList(SmbFile aFile)
 	{
-		// Set title to current directory.
-		this.setTitle(aFile.getPath());
-		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
 		
 		// Setup arrays to hold folder list and file list.
@@ -385,10 +378,72 @@ public class MagicFileSelector extends ListActivity {
 			folders.add(0, new FileDisplayLine("..", "Parent Directory", aFile.getParent(), FileDisplayLine.FILETYPE_PARENT, 0));
 		}
 		
-		// Set the list adapter to display.
-		adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, folders);
-		this.setListAdapter(adapter);
+		return folders;
 	}
 	
 	
+	
+	/**
+	 * SMBRead scans the SMBFile off the UI thread presenting
+	 * a progress indication.
+	 * @author dream09
+	 *
+	 */
+	private class SMBRead extends AsyncTask<Void, Void, List<FileDisplayLine>> {
+		
+		/* Variables */
+		private Context context;
+		private String path;
+		private ProgressDialog pDialog = null;
+		
+		
+		
+		/**
+		 * Constructor.
+		 * @param context
+		 */
+		public SMBRead(Context context, String path) {
+			this.context = context;
+			this.path = path;
+		}
+		
+		
+		
+		/* Overridden methods */
+		
+		@Override
+		protected void onPreExecute() {
+			pDialog = new ProgressDialog(context);
+			pDialog.setMessage(getString(R.string.file_list_updating));
+			pDialog.setCancelable(false);
+			pDialog.setIndeterminate(true);
+			pDialog.show();
+		}
+		
+		@Override
+		protected List<FileDisplayLine> doInBackground(Void... params) {
+			
+			try {
+				currentSmb = new SmbFile(path, smbAuth);
+				return populateSmbFileList(currentSmb);
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(List<FileDisplayLine> result) {
+			
+			// Set the list adapter to display.
+			if (result != null) {
+				adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, result);
+				setListAdapter(adapter);
+				setTitle(path);
+			}
+			
+			pDialog.dismiss();
+		}
+	}
 }
