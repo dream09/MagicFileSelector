@@ -18,10 +18,16 @@ import jcifs.smb.SmbFileFilter;
 
 import com.magic09.magicfilechooser.R;
 
+<<<<<<< Upstream, based on origin/master
 import android.app.ActionBar;
+=======
+import android.app.AlertDialog;
+>>>>>>> 12b775d Add folder selection mode.
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +35,8 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 /**
@@ -56,6 +64,9 @@ public class MagicFileSelector extends ListActivity {
 	private String smbURL;
 	
 	public static final int FILE_REQUEST = 0;
+	public static final String MODE_FILE = "file";							// File selection mode (default)
+	public static final String MODE_FOLDER = "folder";						// Folder selection mode.
+	public static final String DATA_KEY_MODE = "dataKeyMode";				// Key used to pass selection mode.
 	public static final String DATA_KEY_RETURN = "dataKeyReturn";			// Key used to return data.
 	public static final String DATA_KEY_FOLDER = "dataKeyFolder";			// Key used to pass a start folder.
 	public static final String DATA_KEY_FILTER = "dataKeyFilter";			// Key used to pass a file filter.
@@ -100,7 +111,6 @@ public class MagicFileSelector extends ListActivity {
 		};
 	}
 	
-	
 	/**
 	 * Handle creation and setup based on passed data (if any).
 	 */
@@ -117,6 +127,7 @@ public class MagicFileSelector extends ListActivity {
 		if (extras != null) {
 			
 			SmbMode = false;
+			String myMode = extras.getString(DATA_KEY_MODE);
 			String myFolder = extras.getString(DATA_KEY_FOLDER);
 			String myIPAddress= extras.getString(DATA_KEY_IPADDRESS);
 			String myUsername= extras.getString(DATA_KEY_USERNAME);
@@ -141,6 +152,40 @@ public class MagicFileSelector extends ListActivity {
 				
 			} else {
 				currentDir = new File(Environment.getExternalStorageDirectory().getPath());
+			}
+			
+			// Check selection mode - setup folder long click if required.
+			if (myMode != null && myMode.equals(MODE_FOLDER)) {
+				getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
+	
+					@Override
+					public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
+						
+						FileDisplayLine selectedItem = (FileDisplayLine) arg0.getItemAtPosition(position);
+						final String fullPath = selectedItem.getPath();
+						String folderName = selectedItem.getName();
+						
+						AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+						builder.setTitle(R.string.folder_dialog_title)
+							.setMessage(view.getContext().getString(R.string.folder_dialog_text) + " " + folderName)
+							.setPositiveButton(R.string.folder_dialog_yes, new OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									Intent data = new Intent();
+									data.putExtra(MagicFileSelector.DATA_KEY_RETURN, fullPath);
+									setResult(RESULT_OK, data);
+									finish();
+								}
+							})
+							.setNegativeButton(R.string.folder_dialog_no, null);
+						
+						AlertDialog dialog = builder.create();
+						dialog.show();
+						
+						return true;
+					}
+				});
 			}
 			
 			// Check for filters and setup as required.
