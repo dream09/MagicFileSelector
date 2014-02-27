@@ -23,8 +23,6 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -211,9 +209,6 @@ public class MagicFileSelector extends ListActivity {
 						
 						@Override
 						public boolean accept(File dir, String filename) {
-							
-							if (!dir.isFile())
-								return false;
 							
 							for (String filter : theFilters) {
 								if (filename.toLowerCase(Locale.US).endsWith(filter))
