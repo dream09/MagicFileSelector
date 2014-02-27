@@ -18,12 +18,11 @@ import jcifs.smb.SmbFileFilter;
 
 import com.magic09.magicfilechooser.R;
 
-<<<<<<< Upstream, based on origin/master
 import android.app.ActionBar;
-=======
 import android.app.AlertDialog;
->>>>>>> 12b775d Add folder selection mode.
 import android.app.ListActivity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
