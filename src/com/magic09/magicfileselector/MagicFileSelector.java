@@ -135,17 +135,28 @@ public class MagicFileSelector extends ListActivity {
 				currentDir = new File(extras.getString(DATA_KEY_FOLDER));
 			} else if (myIPAddress != null && myUsername != null && myPassword != null) {
 				
+				// Setup access path
 				smbURL = "smb://" + myIPAddress + "/";
+				
+				// Show logging in progress dialog
+				ProgressDialog pDialog = new ProgressDialog(this);
+				pDialog.setMessage(getString(R.string.smb_accessing) + " " + smbURL + "\n\n" + getString(R.string.smb_please_wait));
+				pDialog.setIndeterminate(true);
+				pDialog.setCancelable(false);
+				pDialog.show();
+				
 				smbAuth = new NtlmPasswordAuthentication(null, myUsername, myPassword);
 				currentSmb = null;
+				currentDir = null;
 				try {
 					currentSmb = new SmbFile(smbURL, smbAuth);
 					SmbMode = true;
 				} catch (MalformedURLException e) {
+					pDialog.dismiss();
 					e.printStackTrace();
 				}
 				
-				currentDir = null;
+				pDialog.dismiss();
 				
 			} else {
 				currentDir = new File(Environment.getExternalStorageDirectory().getPath());
