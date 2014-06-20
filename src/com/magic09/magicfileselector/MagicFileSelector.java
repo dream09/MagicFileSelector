@@ -170,8 +170,9 @@ public class MagicFileSelector extends Activity {
 				
 				// Setup and show folder select button.
 				Button folderSelect = (Button) findViewById(R.id.folderSelectButton);
+				folderSelect.setVisibility(View.VISIBLE);
 				folderSelect.setOnClickListener(folderSelectButtonListener);
-				showFolderSelectButton();
+				updateFolderSelectButton();
 				
 				// Setup long click listener for the list.
 				mainList.setOnItemLongClickListener(longClickListener);
@@ -241,7 +242,9 @@ public class MagicFileSelector extends Activity {
 		// Call populate for appropriate file listings.
 		if (!SmbMode) {
 			if (currentDir != null) {
-				populateFileList(currentDir);
+				LocalRead localReader = new LocalRead(currentDir.getPath());
+				localReader.execute();
+				//populateFileList(currentDir);
 			} else {
 				Log.e(TAG, "No local directory specified!");
 			}
@@ -274,14 +277,14 @@ public class MagicFileSelector extends Activity {
 	@Override
 	public void onBackPressed() {
 		// Check if at top level.
-		if (adapter.getCount() > 0 && adapter.getItem(0).getType() == FileDisplayLine.FILETYPE_PARENT) {
+		if (adapter != null && adapter.getCount() > 0 && adapter.getItem(0).getType() == FileDisplayLine.FILETYPE_PARENT) {
 			
 			if (SmbMode) {
 				SMBRead smbReader = new SMBRead(this, adapter.getItem(0).getPath());
 				smbReader.execute();
-			} else {	
-				currentDir = new File(adapter.getItem(0).getPath());
-				populateFileList(currentDir);
+			} else {
+				LocalRead localReader = new LocalRead(adapter.getItem(0).getPath());
+				localReader.execute();
 			}
 		} else {
 			super.onBackPressed();
@@ -305,9 +308,8 @@ public class MagicFileSelector extends Activity {
 					SMBRead smbReader = new SMBRead(view.getContext(), o.getPath());
 					smbReader.execute();
 				} else {
-					currentDir = new File(o.getPath());
-					populateFileList(currentDir);
-					showFolderSelectButton();
+					LocalRead localReader = new LocalRead(o.getPath());
+					localReader.execute();
 				}
 			}
 			if (o.getType() == FileDisplayLine.FILETYPE_FILE) {
@@ -389,18 +391,20 @@ public class MagicFileSelector extends Activity {
 	/* Methods */
 	
 	/**
-	 * 
+	 * Method updates the select folder button if it is visible.
 	 */
-	private void showFolderSelectButton() {
+	private void updateFolderSelectButton() {
+		Button folderSelect = (Button) findViewById(R.id.folderSelectButton);
+		if (folderSelect.getVisibility() == View.GONE)
+			return;
+		
 		String currentFolderName;
 		if (!SmbMode) {
 			currentFolderName = foldernameFromPath(currentDir.getPath());
 		} else {
 			currentFolderName = foldernameFromPath(currentSmb.getPath());
 		}
-		Button folderSelect = (Button) findViewById(R.id.folderSelectButton);
 		folderSelect.setText(getString(R.string.button_select_folder) + " (" + foldernameFromPath(currentFolderName) + ")");
-		folderSelect.setVisibility(View.VISIBLE);
 	}
 	
 	/**
@@ -408,11 +412,8 @@ public class MagicFileSelector extends Activity {
 	 * list.
 	 * @param aFile
 	 */
-	private void populateFileList(File aFile)
+	private List<FileDisplayLine> populateFileList(File aFile)
 	{
-		// Set title to current directory.
-		this.setTitle(aFile.getPath());
-		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
 		
 		// Setup arrays to hold folder list and file list.
@@ -444,9 +445,7 @@ public class MagicFileSelector extends Activity {
 			folders.add(0, new FileDisplayLine("..", "Parent Directory", aFile.getParent(), FileDisplayLine.FILETYPE_PARENT, 0));
 		}
 		
-		// Set the list adapter to display.
-		adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, folders);
-		mainList.setAdapter(adapter);
+		return folders;
 	}
 	
 	/**
@@ -517,6 +516,49 @@ public class MagicFileSelector extends Activity {
 	
 	
 	/**
+	 * LocalRead scans the current local file off the UI thread.
+	 * @author dream09
+	 *
+	 */
+	private class LocalRead extends AsyncTask<Void, Void, List<FileDisplayLine>> {
+		
+		/* Variables */
+		private String path;
+		
+		/**
+		 * Constructor.
+		 * @param context
+		 */
+		public LocalRead(String path) {
+			this.path = path;
+		}
+		
+		/* Overridden methods */
+		
+		@Override
+		protected List<FileDisplayLine> doInBackground(Void... params) {
+			currentDir = new File(path);
+			if (currentDir.exists())
+				return populateFileList(currentDir);
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(List<FileDisplayLine> result) {
+			// Set the list adapter to display.
+			if (result != null) {
+				adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, result);
+				mainList.setAdapter(adapter);
+				setTitle(path);
+				updateFolderSelectButton();
+			}
+		}
+	}
+	
+	
+	
+	/**
 	 * SMBRead scans the SMBFile off the UI thread presenting
 	 * a progress indication.
 	 * @author dream09
@@ -574,7 +616,7 @@ public class MagicFileSelector extends Activity {
 				adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, result);
 				mainList.setAdapter(adapter);
 				setTitle(path);
-				showFolderSelectButton();
+				updateFolderSelectButton();
 			}
 			
 			pDialog.dismiss();
