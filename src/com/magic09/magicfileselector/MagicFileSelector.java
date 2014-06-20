@@ -239,19 +239,16 @@ public class MagicFileSelector extends Activity {
 			currentDir = new File(Environment.getExternalStorageDirectory().getPath());
 		}
 		
-		// Call populate for appropriate file listings.
+		// Call initial populate for appropriate file listings.
 		if (!SmbMode) {
 			if (currentDir != null) {
-				LocalRead localReader = new LocalRead(currentDir.getPath());
-				localReader.execute();
-				//populateFileList(currentDir);
+				updateFileList(currentDir.getPath());
 			} else {
 				Log.e(TAG, "No local directory specified!");
 			}
 		} else {
 			if (currentSmb != null) {
-				SMBRead smbReader = new SMBRead(this, smbURL);
-				smbReader.execute();
+				updateFileList(smbURL);
 			} else {
 				Log.e(TAG, "No SMB directory specified!");
 			}
@@ -278,14 +275,7 @@ public class MagicFileSelector extends Activity {
 	public void onBackPressed() {
 		// Check if at top level.
 		if (adapter != null && adapter.getCount() > 0 && adapter.getItem(0).getType() == FileDisplayLine.FILETYPE_PARENT) {
-			
-			if (SmbMode) {
-				SMBRead smbReader = new SMBRead(this, adapter.getItem(0).getPath());
-				smbReader.execute();
-			} else {
-				LocalRead localReader = new LocalRead(adapter.getItem(0).getPath());
-				localReader.execute();
-			}
+			updateFileList(adapter.getItem(0).getPath());
 		} else {
 			super.onBackPressed();
 		}
@@ -304,13 +294,7 @@ public class MagicFileSelector extends Activity {
 		public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
 			FileDisplayLine o = adapter.getItem(position);
 			if (o.getType() == FileDisplayLine.FILETYPE_FOLDER || o.getType() == FileDisplayLine.FILETYPE_PARENT) {
-				if (SmbMode) {
-					SMBRead smbReader = new SMBRead(view.getContext(), o.getPath());
-					smbReader.execute();
-				} else {
-					LocalRead localReader = new LocalRead(o.getPath());
-					localReader.execute();
-				}
+				updateFileList(o.getPath());
 			}
 			if (o.getType() == FileDisplayLine.FILETYPE_FILE) {
 				Intent data = new Intent();
@@ -389,6 +373,21 @@ public class MagicFileSelector extends Activity {
 	
 	
 	/* Methods */
+	
+	/**
+	 * Method updates the file list for the the argument path using
+	 * the appropriate reader.
+	 * @param path
+	 */
+	private void updateFileList(String path) {
+		if (SmbMode) {
+			SMBRead smbReader = new SMBRead(this, path);
+			smbReader.execute();
+		} else {
+			LocalRead localReader = new LocalRead(path);
+			localReader.execute();
+		}
+	}
 	
 	/**
 	 * Method updates the select folder button if it is visible.
