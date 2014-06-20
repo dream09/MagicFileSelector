@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +38,7 @@ import android.widget.Button;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * MagicFileSelector provides a simple file selection activity
@@ -113,9 +115,16 @@ public class MagicFileSelector extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		// Allow navigating up from the action bar.
+		// Setup the action bar
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setDisplayShowTitleEnabled(true);
+		int actionBarTitleId = getResources().getIdentifier("action_bar_title", "id", "android");
+        TextView titleView = (TextView) findViewById(actionBarTitleId);
+        if (titleView != null) {
+        	titleView.setTextSize(16f);
+        	titleView.setEllipsize(TextUtils.TruncateAt.START);
+        }
 		
 		// Set the view, get the list and setup the click listener
 		setContentView(R.layout.magic_file_selector_layout);
