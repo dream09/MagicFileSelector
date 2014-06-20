@@ -19,12 +19,11 @@ import jcifs.smb.SmbFileFilter;
 import com.magic09.magicfilechooser.R;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,7 +31,10 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
@@ -43,11 +45,12 @@ import android.widget.ListView;
  * @author dream09
  *
  */
-public class MagicFileSelector extends ListActivity {
-	
+public class MagicFileSelector extends Activity {
+
 	static final String TAG = "MagicFileSelector";
 	
 	/* Variables */
+	private ListView mainList;
 	private File currentDir;
 	private SmbFile currentSmb;
 	private FileArrayAdapter adapter;
@@ -83,24 +86,19 @@ public class MagicFileSelector extends ListActivity {
 		
 		// Setup the folder filters.
 		folderFilter = new FileFilter() {
-			
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.isDirectory();
 			}
 		};
-		
 		smbFolderFilter = new SmbFileFilter() {
-			
 			@Override
 			public boolean accept(SmbFile pathname) throws SmbException {
 				return pathname.isDirectory();
 			}
 		};
-		
 		smbFilter = null;
 		smbFileFilter = new SmbFileFilter() {
-			
 			@Override
 			public boolean accept(SmbFile pathname) throws SmbException {
 				return pathname.isFile();
@@ -118,6 +116,11 @@ public class MagicFileSelector extends ListActivity {
 		// Allow navigating up from the action bar.
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
+		
+		// Set the view, get the list and setup the click listener
+		setContentView(R.layout.magic_file_selector_layout);
+		mainList = (ListView) findViewById(R.id.list);
+		mainList.setOnItemClickListener(clickListener);
 		
 		// Get data sent (if any).
 		Bundle extras = getIntent().getExtras();
@@ -164,36 +167,14 @@ public class MagicFileSelector extends ListActivity {
 			
 			// Check selection mode - setup folder long click if required.
 			if (myMode != null && myMode.equals(MODE_FOLDER)) {
-				getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
-	
-					@Override
-					public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
-						
-						FileDisplayLine selectedItem = (FileDisplayLine) arg0.getItemAtPosition(position);
-						final String fullPath = selectedItem.getPath();
-						String folderName = selectedItem.getName();
-						
-						AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-						builder.setTitle(R.string.folder_dialog_title)
-							.setMessage(view.getContext().getString(R.string.folder_dialog_text) + " " + folderName)
-							.setPositiveButton(R.string.folder_dialog_yes, new OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									Intent data = new Intent();
-									data.putExtra(MagicFileSelector.DATA_KEY_RETURN, fullPath);
-									setResult(RESULT_OK, data);
-									finish();
-								}
-							})
-							.setNegativeButton(R.string.folder_dialog_no, null);
-						
-						AlertDialog dialog = builder.create();
-						dialog.show();
-						
-						return true;
-					}
-				});
+				
+				// Setup and show folder select button.
+				Button folderSelect = (Button) findViewById(R.id.folderSelectButton);
+				folderSelect.setOnClickListener(folderSelectButtonListener);
+				showFolderSelectButton();
+				
+				// Setup long click listener for the list.
+				mainList.setOnItemLongClickListener(longClickListener);
 			}
 			
 			// Check for filters and setup as required.
@@ -307,37 +288,120 @@ public class MagicFileSelector extends ListActivity {
 		}
 	}
 	
+	
+	
+	/* Listeners */
+	
 	/**
-	 * Handle the selection of an item.  If a folder show its contents.
+	 * Handle the click of an item.  If a folder show its contents.
 	 * If a file return its path.
 	 */
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		
-		FileDisplayLine o = adapter.getItem(position);
-		if (o.getType() == FileDisplayLine.FILETYPE_FOLDER || o.getType() == FileDisplayLine.FILETYPE_PARENT) {
-			
-			if (SmbMode) {
-				SMBRead smbReader = new SMBRead(this, o.getPath());
-				smbReader.execute();
-			} else {
-				currentDir = new File(o.getPath());
-				populateFileList(currentDir);
+	private OnItemClickListener clickListener = new OnItemClickListener() {
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
+			FileDisplayLine o = adapter.getItem(position);
+			if (o.getType() == FileDisplayLine.FILETYPE_FOLDER || o.getType() == FileDisplayLine.FILETYPE_PARENT) {
+				if (SmbMode) {
+					SMBRead smbReader = new SMBRead(view.getContext(), o.getPath());
+					smbReader.execute();
+				} else {
+					currentDir = new File(o.getPath());
+					populateFileList(currentDir);
+					showFolderSelectButton();
+				}
+			}
+			if (o.getType() == FileDisplayLine.FILETYPE_FILE) {
+				Intent data = new Intent();
+				data.putExtra(MagicFileSelector.DATA_KEY_RETURN, o.getPath());
+				setResult(RESULT_OK, data);
+				finish();
 			}
 		}
+	};
+	
+	/**
+	 * Handle the long click of an item - currently only used in folder selection mode.
+	 */
+	private OnItemLongClickListener longClickListener = new OnItemLongClickListener() {
 		
-		if (o.getType() == FileDisplayLine.FILETYPE_FILE) {
-			Intent data = new Intent();
-			data.putExtra(MagicFileSelector.DATA_KEY_RETURN, o.getPath());
-			setResult(RESULT_OK, data);
-			finish();
+		@Override
+		public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
+			FileDisplayLine selectedItem = (FileDisplayLine) arg0.getItemAtPosition(position);
+			final String fullPath = selectedItem.getPath();
+			String folderName = foldernameFromPath(fullPath);
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+			builder.setTitle(R.string.folder_dialog_title)
+				.setMessage(view.getContext().getString(R.string.folder_dialog_text) + " " + folderName)
+				.setPositiveButton(R.string.folder_dialog_yes, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Intent data = new Intent();
+						data.putExtra(MagicFileSelector.DATA_KEY_RETURN, fullPath);
+						setResult(RESULT_OK, data);
+						finish();
+					}
+				})
+				.setNegativeButton(R.string.folder_dialog_no, null);
+			
+			AlertDialog dialog = builder.create();
+			dialog.show();
+			
+			return true;
 		}
-	}
+	};
+	
+	/**
+	 * Handle a click on the select folder button.
+	 */
+	private OnClickListener folderSelectButtonListener = new OnClickListener() {
+		@Override
+		public void onClick(View view) {
+			final String fullPath;
+			String folderName;
+			if (!SmbMode) {
+				fullPath = currentDir.getPath();
+			} else {
+				fullPath = currentSmb.getPath();
+			}
+			folderName = foldernameFromPath(fullPath);
+			AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+			builder.setTitle(R.string.folder_dialog_title)
+				.setMessage(getString(R.string.folder_dialog_text) + " " + folderName)
+				.setPositiveButton(R.string.folder_dialog_yes, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Intent data = new Intent();
+						data.putExtra(MagicFileSelector.DATA_KEY_RETURN, fullPath);
+						setResult(RESULT_OK, data);
+						finish();
+					}
+				})
+				.setNegativeButton(R.string.folder_dialog_no, null);
+			
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		}
+	};
 	
 	
 	
 	/* Methods */
+	
+	/**
+	 * 
+	 */
+	private void showFolderSelectButton() {
+		String currentFolderName;
+		if (!SmbMode) {
+			currentFolderName = foldernameFromPath(currentDir.getPath());
+		} else {
+			currentFolderName = foldernameFromPath(currentSmb.getPath());
+		}
+		Button folderSelect = (Button) findViewById(R.id.folderSelectButton);
+		folderSelect.setText(getString(R.string.button_select_folder) + " (" + foldernameFromPath(currentFolderName) + ")");
+		folderSelect.setVisibility(View.VISIBLE);
+	}
 	
 	/**
 	 * Method reads the current directory and populates the displayed
@@ -382,7 +446,7 @@ public class MagicFileSelector extends ListActivity {
 		
 		// Set the list adapter to display.
 		adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, folders);
-		this.setListAdapter(adapter);
+		mainList.setAdapter(adapter);
 	}
 	
 	/**
@@ -429,6 +493,25 @@ public class MagicFileSelector extends ListActivity {
 		}
 		
 		return folders;
+	}
+	
+	/**
+	 * Method returns the last folder name in the argument path.
+	 * @param path
+	 * @return
+	 */
+	private String foldernameFromPath(String path) {
+		String result = path;
+		
+		// Remove trailing "/"
+		if (result.substring(result.length() - 1, result.length()).equals("/"))
+			result = result.substring(0, result.length() - 1);
+		
+		// Trim name and capitalise first letter
+		result = result.substring(result.lastIndexOf("/") + 1, result.length());
+		result = result.substring(0, 1).toUpperCase(Locale.US) + result.substring(1);
+		
+		return result;
 	}
 	
 	
@@ -489,8 +572,9 @@ public class MagicFileSelector extends ListActivity {
 			// Set the list adapter to display.
 			if (result != null) {
 				adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, result);
-				setListAdapter(adapter);
+				mainList.setAdapter(adapter);
 				setTitle(path);
+				showFolderSelectButton();
 			}
 			
 			pDialog.dismiss();
