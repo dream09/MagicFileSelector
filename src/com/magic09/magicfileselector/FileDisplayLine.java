@@ -1,5 +1,7 @@
 package com.magic09.magicfileselector;
 
+import java.util.Locale;
+
 /**
  * FileLineDisplay provides a class used to display files and folders
  * within MagicFileSelector.
@@ -66,10 +68,7 @@ public class FileDisplayLine implements Comparable<FileDisplayLine>
 	@Override
 	public int compareTo(FileDisplayLine another) {
 		if (this.name != null) {
-			
-			//TODO: need to implement locale - get from system?
-			
-			return this.name.toLowerCase().compareTo(another.getName().toLowerCase());
+			return this.name.toLowerCase(Locale.US).compareTo(another.getName().toLowerCase(Locale.US));
 		} else {
 			throw new IllegalArgumentException();
 		}
