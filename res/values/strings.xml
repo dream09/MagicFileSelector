@@ -3,7 +3,7 @@
     <string name="app_name">Magic File Chooser</string>
     <string name="filechooser_icon_description">Content icon</string>
     <string name="file_list_updating">Processing, please wait.</string>
-    <string name="button_select_folder">Select current folder</string>
+    <string name="button_select_folder">Select this folder</string>
 	<string name="smb_accessing">Accessing</string>
 	<string name="smb_please_wait">Please wait.</string>
     <string name="folder_dialog_title">Folder selection</string>
