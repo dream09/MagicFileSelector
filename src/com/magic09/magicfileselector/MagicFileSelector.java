@@ -363,7 +363,7 @@ public class MagicFileSelector extends Activity {
 			
 			AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
 			builder.setTitle(R.string.folder_dialog_title)
-				.setMessage(view.getContext().getString(R.string.folder_dialog_text) + " " + folderName)
+				.setMessage(view.getContext().getString(R.string.folder_dialog_text) + " \"" + folderName + "\"")
 				.setPositiveButton(R.string.folder_dialog_yes, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -402,7 +402,7 @@ public class MagicFileSelector extends Activity {
 			folderName = foldernameFromPath(fullPath);
 			AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
 			builder.setTitle(R.string.folder_dialog_title)
-				.setMessage(getString(R.string.folder_dialog_text) + " " + folderName)
+				.setMessage(getString(R.string.folder_dialog_text) + " \"" + folderName + "\"")
 				.setPositiveButton(R.string.folder_dialog_yes, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -554,9 +554,8 @@ public class MagicFileSelector extends Activity {
 		if (result.substring(result.length() - 1, result.length()).equals("/"))
 			result = result.substring(0, result.length() - 1);
 		
-		// Trim name and capitalise first letter
+		// Trim name
 		result = result.substring(result.lastIndexOf("/") + 1, result.length());
-		result = result.substring(0, 1).toUpperCase(Locale.US) + result.substring(1);
 		
 		return result;
 	}
