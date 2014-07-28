@@ -472,7 +472,7 @@ public class MagicFileSelector extends Activity {
 		try {
 			File[]filterDirs = aFile.listFiles(folderFilter);
 			for (File loopDir : filterDirs) {
-				folders.add(new FileDisplayLine(loopDir.getName(), sdf.format(new Date(loopDir.lastModified())), loopDir.getAbsolutePath(), FileDisplayLine.FILETYPE_FOLDER, 0));
+				folders.add(new FileDisplayLine(foldernameFromPath(loopDir.getPath()), sdf.format(new Date(loopDir.lastModified())), loopDir.getAbsolutePath(), FileDisplayLine.FILETYPE_FOLDER, 0));
 			}
 			
 			File[]filterFiles = aFile.listFiles(filter);
@@ -513,7 +513,7 @@ public class MagicFileSelector extends Activity {
 		try {
 			SmbFile[]filterDirs = aFile.listFiles(smbFolderFilter);
 			for (SmbFile loopDir : filterDirs) {
-				folders.add(new FileDisplayLine(loopDir.getName(), sdf.format(new Date(loopDir.lastModified())), loopDir.getPath(), FileDisplayLine.FILETYPE_FOLDER, 0));
+				folders.add(new FileDisplayLine(foldernameFromPath(loopDir.getPath()), sdf.format(new Date(loopDir.lastModified())), loopDir.getPath(), FileDisplayLine.FILETYPE_FOLDER, 0));
 			}
 			
 			SmbFile[]filterFiles;
