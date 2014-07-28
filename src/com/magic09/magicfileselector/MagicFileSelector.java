@@ -16,7 +16,9 @@ import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileFilter;
 
+import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.magic09.magicfilechooser.R;
+import com.magic09.magicutils.HelpDisplay;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -52,6 +54,7 @@ public class MagicFileSelector extends Activity {
 	static final String TAG = "MagicFileSelector";
 	
 	/* Variables */
+	private String myMode;
 	private ListView mainList;
 	private File currentDir;
 	private SmbFile currentSmb;
@@ -64,18 +67,25 @@ public class MagicFileSelector extends Activity {
 	private boolean SmbMode;
 	private NtlmPasswordAuthentication smbAuth;
 	private String smbURL;
+	private boolean displayHelp;
+	private String helpTitle;
+	private String helpText;
+	private ShowcaseView showcaseView;
 	
 	public static final int FILE_REQUEST = 0;
-	public static final String MODE_FILE = "file";							// File selection mode (default)
-	public static final String MODE_FOLDER = "folder";						// Folder selection mode.
-	public static final String DATA_KEY_MODE = "dataKeyMode";				// Key used to pass selection mode.
-	public static final String DATA_KEY_RETURN = "dataKeyReturn";			// Key used to return data.
-	public static final String DATA_KEY_FOLDER = "dataKeyFolder";			// Key used to pass a start folder.
-	public static final String DATA_KEY_FILTER = "dataKeyFilter";			// Key used to pass a file filter.
-	public static final String DATA_KEY_FILTERS = "dataKeyFilters";			// Key used to pass multiple file filters.
-	public static final String DATA_KEY_IPADDRESS = "dataKeyIPAddress";		// Key used to pass an smb address.
-	public static final String DATA_KEY_USERNAME = "dataKeyUsername";		// Key used to pass a username for the smb address.
-	public static final String DATA_KEY_PASSWORD = "dataKeyPassword";		// Key used to pass a password for the smb address.
+	public static final String MODE_FILE = "file";								// File selection mode (default)
+	public static final String MODE_FOLDER = "folder";							// Folder selection mode.
+	public static final String DATA_KEY_HELP_DISPLAY = "dataKeyHelpDisplay";	// Display help.
+	public static final String DATA_KEY_HELP_TITLE = "dataKeyHelpTitle";		// Custom help title.
+	public static final String DATA_KEY_HELP_TEXT = "dataKeyHelpText";			// Custom help text.
+	public static final String DATA_KEY_MODE = "dataKeyMode";					// Key used to pass selection mode.
+	public static final String DATA_KEY_RETURN = "dataKeyReturn";				// Key used to return data.
+	public static final String DATA_KEY_FOLDER = "dataKeyFolder";				// Key used to pass a start folder.
+	public static final String DATA_KEY_FILTER = "dataKeyFilter";				// Key used to pass a file filter.
+	public static final String DATA_KEY_FILTERS = "dataKeyFilters";				// Key used to pass multiple file filters.
+	public static final String DATA_KEY_IPADDRESS = "dataKeyIPAddress";			// Key used to pass an smb address.
+	public static final String DATA_KEY_USERNAME = "dataKeyUsername";			// Key used to pass a username for the smb address.
+	public static final String DATA_KEY_PASSWORD = "dataKeyPassword";			// Key used to pass a password for the smb address.
 	
 	
 	
@@ -136,11 +146,14 @@ public class MagicFileSelector extends Activity {
 		if (extras != null) {
 			
 			SmbMode = false;
-			String myMode = extras.getString(DATA_KEY_MODE);
+			myMode = extras.getString(DATA_KEY_MODE);
 			String myFolder = extras.getString(DATA_KEY_FOLDER);
 			String myIPAddress= extras.getString(DATA_KEY_IPADDRESS);
 			String myUsername= extras.getString(DATA_KEY_USERNAME);
 			String myPassword= extras.getString(DATA_KEY_PASSWORD);
+			displayHelp = extras.getBoolean(DATA_KEY_HELP_DISPLAY);
+			helpTitle = extras.getString(DATA_KEY_HELP_TITLE);
+			helpText = extras.getString(DATA_KEY_HELP_TEXT);
 			
 			// Check if browsing locally (default) or on network (ip address).
 			if (myFolder != null && myFolder.length() > 0) {
@@ -290,6 +303,21 @@ public class MagicFileSelector extends Activity {
 		}
 	}
 	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		
+		// Display help if required
+		if (displayHelp && helpTitle != null && helpText != null) {
+			// General file help - no target
+			if (myMode != null && myMode.equals(MODE_FILE))
+				showcaseView = HelpDisplay.displayNoPointHelp(this, helpTitle, helpText);
+			// Folder selection - target selection button
+			if (myMode != null && myMode.equals(MODE_FOLDER))
+				showcaseView = HelpDisplay.displayItemHelp(this, R.id.folderSelectButton, helpTitle, helpText);
+		}
+	}
+	
 	
 	
 	/* Listeners */
@@ -301,6 +329,10 @@ public class MagicFileSelector extends Activity {
 	private OnItemClickListener clickListener = new OnItemClickListener() {
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
+			// Remove help
+			if (showcaseView != null)
+				showcaseView.hide();
+			
 			FileDisplayLine o = adapter.getItem(position);
 			if (o.getType() == FileDisplayLine.FILETYPE_FOLDER || o.getType() == FileDisplayLine.FILETYPE_PARENT) {
 				updateFileList(o.getPath());
@@ -321,6 +353,10 @@ public class MagicFileSelector extends Activity {
 		
 		@Override
 		public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long id) {
+			// Remove help
+			if (showcaseView != null)
+				showcaseView.hide();
+			
 			FileDisplayLine selectedItem = (FileDisplayLine) arg0.getItemAtPosition(position);
 			final String fullPath = selectedItem.getPath();
 			String folderName = foldernameFromPath(fullPath);
@@ -352,6 +388,10 @@ public class MagicFileSelector extends Activity {
 	private OnClickListener folderSelectButtonListener = new OnClickListener() {
 		@Override
 		public void onClick(View view) {
+			// Remove help
+			if (showcaseView != null)
+				showcaseView.hide();
+			
 			final String fullPath;
 			String folderName;
 			if (!SmbMode) {
