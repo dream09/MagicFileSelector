@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.magic09.magicfilechooser"
-    android:versionCode="1"
-    android:versionName="2.1" >
+    android:versionCode="2"
+    android:versionName="3.0" >
 
     <!--
     <uses-sdk
