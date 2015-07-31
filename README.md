@@ -1,31 +1,41 @@
 MagicFileSelector
 =================
-An Android library project that provides a simple file chooser activity.  This project was developed in [Eclipse](http://www.eclipse.org/downloads/) using the [Android ADT plugin for Eclipse](http://developer.android.com/sdk/installing/installing-adt.html) using JDK 7.
+An Android library project that provides a simple file chooser activity.  This project was developed in [Android Studio](http://developer.android.com/tools/studio/).
 
+Adding MagicFileSelector to your project
+----------------------------------------
+**1. Gradle dependency (Android Studio)**
 
-Cloning MagicFileSelector source from GitHub
---------------------------------------------
-Follow these steps to clone the source if you would like to use this project and/or contribute.
+ - 	Add the following to your `build.gradle`:
+ ```gradle
+repositories {
+	    maven { url "https://jitpack.io" }
+}
 
-1. Switch to the *Git Repository Exploring* perspective in Eclipse.
-2. Copy the URI for this project https://github.com/dream09/MagicFileSelector.git.
-3. Click *Clone a Git Repository* and paste the URI from step 2.
-4. The *Host* and *Repository* path fields should populate automatically. Click *Next >*.
-5. If you wish to use the latest stable version as a library for another project ensure the *master* branch is checked. If you wish to contribute to MagicFileSelector ensure the *develop* branch is checked.
-6. Make any changes you wish in the **Local Destination** dialogue (remember - short paths close to root and without spaces are recommended), and click *Finish*.
-7. Wait for the repository to be cloned.
-8. If you would like to use the latest stable version check out the latest tag, for example v1.0, by:
-	- Right-click the repository and select *Switch To → Other...*
-	- Select Tags → v1.0 (or whatever is the latest)
-	- Click *Checkout*
-9. Right-click the repository and select *Import Projects...*.
-10. Select the *Use the New Project wizard* option and click *Finish*.
-11. Select *Android Project from Existing Code* under the *Android* folder and click *Next >*.
-12. Click *Browse* and locate the project directory you cloned to in step 6 then click *Finish*.
-13. Switch to the *Java* perspective.
-14. Right-click the MagicFileSelector project and click *Properties*.
-15. Under *Android* options check the *Is Library* check box and click *OK*.
+dependencies {
+	    compile 'com.github.dream09:MagicFileSelector:3.0'
+}
+```
 
+**2. Maven**
+- Add the following to your `pom.xml`:
+ ```xml
+<repository>
+       	<id>jitpack.io</id>
+	    <url>https://jitpack.io</url>
+</repository>
+
+<dependency>
+	    <groupId>com.github.dream09</groupId>
+	    <artifactId>MagicFileSelector</artifactId>
+	    <version>3.0</version>
+</dependency>
+```
+
+**3. Jar file only**
+ - Get the [**latest release .jar file**](https://github.com/dream09/MagicEula/releases) from the releases area
+ - Copy the **MagicEula-X.X.jar** file into the `libs` folder of your Android project
+ - Start using the library
 
 Using MagicFileSelector for local file system (eg sdcard)
 ---------------------------------------------------------
@@ -53,7 +63,6 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		}
 }
 ```
-
 
 Using MagicFileSelector for SMB/CIFS file system
 ------------------------------------------------
@@ -85,7 +94,6 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		}
 }
 ```
-
 
 Contributing to MagicFileSelector
 ---------------------------------
