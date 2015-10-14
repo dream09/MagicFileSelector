@@ -17,4 +17,12 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
+    <style name="SubheadDark" parent="TextAppearance.AppCompat.Subhead">
+        <item name="android:textColor">@color/material_grey_800</item>
+    </style>
+
+    <style name="Body1Grey" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textColor">@color/material_grey_600</item>
+    </style>
+
 </resources>

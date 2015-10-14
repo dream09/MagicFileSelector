@@ -20,7 +20,6 @@ import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.magic09.magicfilechooser.R;
 import com.magic09.magicutils.HelpDisplay;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -30,6 +29,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
@@ -49,7 +50,7 @@ import android.widget.TextView;
  * @author dream09
  *
  */
-public class MagicFileSelector extends Activity {
+public class MagicFileSelector extends AppCompatActivity {
 
 	static final String TAG = "MagicFileSelector";
 	
@@ -95,7 +96,7 @@ public class MagicFileSelector extends Activity {
 	 * Constructor.
 	 */
 	public MagicFileSelector() {
-		
+
 		// Setup the folder filters.
 		folderFilter = new FileFilter() {
 			@Override
@@ -126,7 +127,7 @@ public class MagicFileSelector extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		// Setup the action bar
-		ActionBar actionBar = getActionBar();
+		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setDisplayShowTitleEnabled(true);
 		int actionBarTitleId = getResources().getIdentifier("action_bar_title", "id", "android");
