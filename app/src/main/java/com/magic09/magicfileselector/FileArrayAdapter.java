@@ -1,17 +1,18 @@
 package com.magic09.magicfileselector;
 
-import java.util.List;
-import java.util.Locale;
-
-import com.magic09.magicfilechooser.R;
-
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.magic09.magicfilechooser.R;
+
+import java.util.List;
+import java.util.Locale;
 
 /**
  * FileArrayAdapter provides the layout for each list item displayed
@@ -84,9 +85,11 @@ public class FileArrayAdapter extends ArrayAdapter<FileDisplayLine>
 			// Show correct icon (folder or file).
 			if (icon != null) {
 				if (o.getType() == FileDisplayLine.FILETYPE_FILE) {
-					icon.setImageDrawable(getContext().getResources().getDrawable(R.drawable.ic_file));
+					icon.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_poll_black_36dp));
+					icon.setRotation(90f);
 				} else if (o.getType() == FileDisplayLine.FILETYPE_FOLDER || o.getType() == FileDisplayLine.FILETYPE_PARENT) {
-					icon.setImageDrawable(getContext().getResources().getDrawable(R.drawable.ic_menu_archive));
+					icon.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_folder_black_36dp));
+					icon.setRotation(0);
 				}
 			}
 		}
