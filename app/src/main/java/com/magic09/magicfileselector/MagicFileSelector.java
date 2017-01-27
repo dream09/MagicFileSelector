@@ -442,23 +442,6 @@ public class MagicFileSelector extends AppCompatActivity {
 	}
 	
 	/**
-	 * Method updates the select folder button if it is visible.
-	 */
-	private void updateFolderSelectButton() {
-		//Button folderSelect = (Button) findViewById(R.id.folderSelectButton);
-		//if (folderSelect.getVisibility() == View.GONE)
-		//	return;
-		
-		String currentFolderName;
-		if (!SmbMode) {
-			currentFolderName = foldernameFromPath(currentDir.getPath());
-		} else {
-			currentFolderName = foldernameFromPath(currentSmb.getPath());
-		}
-		//folderSelect.setText(getString(R.string.button_select_folder) + " (" + foldernameFromPath(currentFolderName) + ")");
-	}
-	
-	/**
 	 * Method reads the current directory and populates the displayed
 	 * list.
 	 * @param aFile
@@ -601,7 +584,6 @@ public class MagicFileSelector extends AppCompatActivity {
 				adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, result);
 				mainList.setAdapter(adapter);
 				setTitle(path);
-				updateFolderSelectButton();
 			}
 		}
 	}
@@ -666,7 +648,6 @@ public class MagicFileSelector extends AppCompatActivity {
 				adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, result);
 				mainList.setAdapter(adapter);
 				setTitle(path);
-				updateFolderSelectButton();
 			}
 			
 			pDialog.dismiss();
