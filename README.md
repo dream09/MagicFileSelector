@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-	    compile 'com.github.dream09:MagicFileSelector:3.0'
+	    compile 'com.github.dream09:MagicFileSelector:4.0'
 }
 ```
 
@@ -34,7 +34,7 @@ dependencies {
 
 **3. Jar file only**
  - Get the [**latest release .jar file**](https://github.com/dream09/MagicEula/releases) from the releases area
- - Copy the **MagicEula-X.X.jar** file into the `libs` folder of your Android project
+ - Copy the **MagicFileSelector-X.X.jar** file into the `libs` folder of your Android project
  - Start using the library
 
 Using MagicFileSelector for local file system (eg sdcard)
@@ -63,6 +63,8 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		}
 }
 ```
+
+* Check out the sample included for more settings.
 
 Using MagicFileSelector for SMB/CIFS file system
 ------------------------------------------------
@@ -95,7 +97,9 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 }
 ```
 
+* Check out the sample included for more settings.
+
 Contributing to MagicFileSelector
 ---------------------------------
 
-If you wish to contribute please create a feature branch from the *develop* branch and name *feature-yourfeature*.
+If you wish to contribute please create a feature branch from the *develop* branch and name *feature-your_feature*.

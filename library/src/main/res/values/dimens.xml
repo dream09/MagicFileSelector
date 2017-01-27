@@ -1,0 +1,6 @@
+<resources>
+
+    <!-- FAB right and bottom margin upto API 21 -->
+    <dimen name="fab_margin">16dp</dimen>
+    
+</resources>
