@@ -10,5 +10,6 @@
     <string name="folder_dialog_text">Select</string>
     <string name="folder_dialog_yes">Yes</string>
     <string name="folder_dialog_no">No</string>
+    <string name="dismiss_help_button">OK, got it</string>
     
 </resources>

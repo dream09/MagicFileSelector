@@ -24,7 +24,7 @@ import android.widget.TextView;
 
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.magic09.magicfilechooser.R;
-import com.magic09.magicutils.HelpDisplay;
+import com.magic09.magicfileselector.utils.HelpDisplay;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -319,8 +319,12 @@ public class MagicFileSelector extends AppCompatActivity {
 			if (myMode != null && myMode.equals(MODE_FILE))
 				showcaseView = HelpDisplay.displayNoPointHelp(this, helpTitle, helpText);
 			// Folder selection - target selection button
-			if (myMode != null && myMode.equals(MODE_FOLDER))
-				showcaseView = HelpDisplay.displayItemHelp(this, R.id.main_fab, helpTitle, helpText);
+			if (myMode != null && myMode.equals(MODE_FOLDER)) {
+                showcaseView = HelpDisplay.displayItemHelp(this, R.id.main_fab, helpTitle, helpText);
+                showcaseView.hideButton();
+                showcaseView.setHideOnTouchOutside(true);
+                showcaseView.setBlocksTouches(true);
+            }
 		}
 	}
 

@@ -34,8 +34,5 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.1.0'
     testCompile 'junit:junit:4.12'
-
-    // MagicUtils required as required by library
-    compile 'com.github.dream09:MagicUtils:1.1'
     compile project(':library')
 }
