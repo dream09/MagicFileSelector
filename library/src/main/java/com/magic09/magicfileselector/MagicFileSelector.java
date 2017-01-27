@@ -164,7 +164,7 @@ public class MagicFileSelector extends AppCompatActivity {
 			
 			// Check if browsing locally (default) or on network (ip address).
 			if (myFolder != null && myFolder.length() > 0) {
-				currentDir = new File(extras.getString(DATA_KEY_FOLDER));
+				currentDir = new File(myFolder);
 			} else if (myIPAddress != null && myUsername != null && myPassword != null) {
 				
 				// Setup access path
