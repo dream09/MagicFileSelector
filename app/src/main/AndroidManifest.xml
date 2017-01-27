@@ -1,4 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.magic09.magicfilechooser">
 
+    <application
+        android:theme="@style/AppTheme">
+
+        <activity android:name="com.magic09.magicfileselector.MagicFileSelector"/>
+
+    </application>
+
 </manifest>

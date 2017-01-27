@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
+    android:fitsSystemWindows="true">
+
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-    
-    <Button 
-        android:id="@+id/folderSelectButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_select_folder"
-        android:textColor="#FFFFFF"
-        android:singleLine="true"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:background="@drawable/folder_button"
-        android:visibility="gone"/>
+        android:layout_height="match_parent" />
 
-</LinearLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/main_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_launch_white_24dp"
+        android:visibility="gone" />
+
+</android.support.design.widget.CoordinatorLayout>

@@ -1,5 +1,31 @@
 package com.magic09.magicfileselector;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.magic09.magicfilechooser.R;
+import com.magic09.magicutils.HelpDisplay;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -15,33 +41,6 @@ import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileFilter;
-
-import com.github.amlcurran.showcaseview.ShowcaseView;
-import com.magic09.magicfilechooser.R;
-import com.magic09.magicutils.HelpDisplay;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Environment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListView;
-import android.widget.TextView;
 
 /**
  * MagicFileSelector provides a simple file selection activity
@@ -125,22 +124,26 @@ public class MagicFileSelector extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		// Setup the action bar
+
+        // Set the view, get the list and setup the click listener
+        setContentView(R.layout.magic_file_selector_layout);
+        mainList = (ListView) findViewById(R.id.list);
+        mainList.setOnItemClickListener(clickListener);
+
+		// Setup the action bar if available
+		// this will be implemented from the launching activity
 		ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayHomeAsUpEnabled(true);
-		actionBar.setDisplayShowTitleEnabled(true);
-		int actionBarTitleId = getResources().getIdentifier("action_bar_title", "id", "android");
-        TextView titleView = (TextView) findViewById(actionBarTitleId);
-        if (titleView != null) {
-        	titleView.setTextSize(16f);
-        	titleView.setEllipsize(TextUtils.TruncateAt.START);
-        }
-		
-		// Set the view, get the list and setup the click listener
-		setContentView(R.layout.magic_file_selector_layout);
-		mainList = (ListView) findViewById(R.id.list);
-		mainList.setOnItemClickListener(clickListener);
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+			actionBar.setDisplayShowTitleEnabled(true);
+
+            int actionBarTitleId = getResources().getIdentifier("action_bar_title", "id", "android");
+			TextView titleView = (TextView) findViewById(actionBarTitleId);
+			if (titleView != null) {
+				titleView.setTextSize(16f);
+				titleView.setEllipsize(TextUtils.TruncateAt.START);
+			}
+		}
 		
 		// Get data sent (if any).
 		Bundle extras = getIntent().getExtras();
@@ -191,11 +194,10 @@ public class MagicFileSelector extends AppCompatActivity {
 			// Check selection mode - setup folder long click if required.
 			if (myMode != null && myMode.equals(MODE_FOLDER)) {
 				
-				// Setup and show folder select button.
-				Button folderSelect = (Button) findViewById(R.id.folderSelectButton);
-				folderSelect.setVisibility(View.VISIBLE);
-				folderSelect.setOnClickListener(folderSelectButtonListener);
-				updateFolderSelectButton();
+				// Setup and show folder select FAB
+                FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.main_fab);
+                fab.setVisibility(View.VISIBLE);
+                fab.setOnClickListener(folderSelectButtonListener);
 				
 				// Setup long click listener for the list.
 				mainList.setOnItemLongClickListener(longClickListener);
@@ -314,8 +316,8 @@ public class MagicFileSelector extends AppCompatActivity {
 			if (myMode != null && myMode.equals(MODE_FILE))
 				showcaseView = HelpDisplay.displayNoPointHelp(this, helpTitle, helpText);
 			// Folder selection - target selection button
-			if (myMode != null && myMode.equals(MODE_FOLDER))
-				showcaseView = HelpDisplay.displayItemHelp(this, R.id.folderSelectButton, helpTitle, helpText);
+			//if (myMode != null && myMode.equals(MODE_FOLDER))
+				//showcaseView = HelpDisplay.displayItemHelp(this, R.id.folderSelectButton, helpTitle, helpText);
 		}
 	}
 	
@@ -443,9 +445,9 @@ public class MagicFileSelector extends AppCompatActivity {
 	 * Method updates the select folder button if it is visible.
 	 */
 	private void updateFolderSelectButton() {
-		Button folderSelect = (Button) findViewById(R.id.folderSelectButton);
-		if (folderSelect.getVisibility() == View.GONE)
-			return;
+		//Button folderSelect = (Button) findViewById(R.id.folderSelectButton);
+		//if (folderSelect.getVisibility() == View.GONE)
+		//	return;
 		
 		String currentFolderName;
 		if (!SmbMode) {
@@ -453,7 +455,7 @@ public class MagicFileSelector extends AppCompatActivity {
 		} else {
 			currentFolderName = foldernameFromPath(currentSmb.getPath());
 		}
-		folderSelect.setText(getString(R.string.button_select_folder) + " (" + foldernameFromPath(currentFolderName) + ")");
+		//folderSelect.setText(getString(R.string.button_select_folder) + " (" + foldernameFromPath(currentFolderName) + ")");
 	}
 	
 	/**
@@ -575,7 +577,7 @@ public class MagicFileSelector extends AppCompatActivity {
 		
 		/**
 		 * Constructor.
-		 * @param context
+		 * @param path
 		 */
 		public LocalRead(String path) {
 			this.path = path;
