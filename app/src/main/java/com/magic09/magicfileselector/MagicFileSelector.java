@@ -72,7 +72,7 @@ public class MagicFileSelector extends AppCompatActivity {
 	private String helpText;
 	private ShowcaseView showcaseView;
 	
-	public static final int FILE_REQUEST = 0;
+	public static final int FILE_REQUEST = 102030;
 	public static final String MODE_FILE = "file";								// File selection mode (default)
 	public static final String MODE_FOLDER = "folder";							// Folder selection mode.
 	public static final String DATA_KEY_HELP_DISPLAY = "dataKeyHelpDisplay";	// Display help.
