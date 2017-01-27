@@ -319,8 +319,8 @@ public class MagicFileSelector extends AppCompatActivity {
 			if (myMode != null && myMode.equals(MODE_FILE))
 				showcaseView = HelpDisplay.displayNoPointHelp(this, helpTitle, helpText);
 			// Folder selection - target selection button
-			//if (myMode != null && myMode.equals(MODE_FOLDER))
-				//showcaseView = HelpDisplay.displayItemHelp(this, R.id.folderSelectButton, helpTitle, helpText);
+			if (myMode != null && myMode.equals(MODE_FOLDER))
+				showcaseView = HelpDisplay.displayItemHelp(this, R.id.main_fab, helpTitle, helpText);
 		}
 	}
 	
