@@ -3,8 +3,11 @@
     <string name="sample_browse">browse</string>
     <string name="sample_result_title">Path of file/folder selected will be displayed here:</string>
     <string name="sample_cb_simplepath_title">Show simple path in actionbar</string>
+    <string name="sample_cb_showhelp_title">Show help</string>
     <string name="sample_rb_folder">FOLDER</string>
     <string name="sample_rb_file">FILE</string>
     <string name="sample_mode_title">Select mode:</string>
-    <string name="sample_summary">Select options below then click browse...</string>
+    <string name="sample_summary">Select options below then click browse…</string>
+    <string name="sample_help_title">Browse for file/folder</string>
+    <string name="sample_help_text">Browse for file/folder then tap here</string>
 </resources>

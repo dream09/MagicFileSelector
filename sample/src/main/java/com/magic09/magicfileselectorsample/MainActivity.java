@@ -17,6 +17,10 @@ import android.widget.TextView;
 
 import com.magic09.magicfileselector.MagicFileSelector;
 
+import static com.magic09.magicfileselector.MagicFileSelector.DATA_KEY_HELP_DISPLAY;
+import static com.magic09.magicfileselector.MagicFileSelector.DATA_KEY_HELP_TEXT;
+import static com.magic09.magicfileselector.MagicFileSelector.DATA_KEY_HELP_TITLE;
+
 
 /**
  * MainActivity demonstrates the usage of MagicFileSelector.
@@ -124,6 +128,14 @@ public class MainActivity extends AppCompatActivity {
         CheckBox simplePath = (CheckBox) findViewById(R.id.cb_simplepath);
         if (simplePath.isChecked()) {
             browseIntent.putExtra(MagicFileSelector.DATA_KEY_SIMPLE_PATH, true);
+        }
+
+        // Setup help if required
+        CheckBox showHelp = (CheckBox) findViewById(R.id.cb_showhelp);
+        if (showHelp.isChecked()) {
+            browseIntent.putExtra(DATA_KEY_HELP_DISPLAY, true);
+            browseIntent.putExtra(DATA_KEY_HELP_TITLE, getString(R.string.sample_help_title));
+            browseIntent.putExtra(DATA_KEY_HELP_TEXT, getString(R.string.sample_help_text));
         }
 
         startActivityForResult(browseIntent, FILE_FOLDER_REQUEST);

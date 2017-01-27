@@ -47,10 +47,18 @@
         android:id="@+id/cb_simplepath"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:layout_below="@+id/rg_mode"
         android:text="@string/sample_cb_simplepath_title"
         android:checked="false"/>
 
+    <CheckBox
+        android:id="@+id/cb_showhelp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cb_simplepath"
+        android:text="@string/sample_cb_showhelp_title"
+        android:checked="false"/>
 
     <TextView
         android:id="@+id/tv_result_summary"

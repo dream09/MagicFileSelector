@@ -323,7 +323,7 @@ public class MagicFileSelector extends AppCompatActivity {
 				showcaseView = HelpDisplay.displayItemHelp(this, R.id.main_fab, helpTitle, helpText);
 		}
 	}
-	
+
 	
 	
 	/* Listeners */
