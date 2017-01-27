@@ -1,6 +1,7 @@
 package com.magic09.magicfileselector;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,11 +15,12 @@ import com.magic09.magicfilechooser.R;
 import java.util.List;
 import java.util.Locale;
 
+
+
 /**
  * FileArrayAdapter provides the layout for each list item displayed
- * in MagicFileChooser.
- * @author magic09
- *
+ * in MagicFileSelector.
+ * @author dream09
  */
 public class FileArrayAdapter extends ArrayAdapter<FileDisplayLine>
 {
@@ -32,9 +34,9 @@ public class FileArrayAdapter extends ArrayAdapter<FileDisplayLine>
 	
 	/**
 	 * Constructor.
-	 * @param context
-	 * @param textViewResourceId
-	 * @param objects
+	 * @param context The required context.
+	 * @param textViewResourceId The view to use to display each item in the list.
+	 * @param objects The list to display.
 	 */
 	public FileArrayAdapter(Context context, int textViewResourceId, List<FileDisplayLine> objects) {
 		super(context, textViewResourceId, objects);
@@ -47,12 +49,10 @@ public class FileArrayAdapter extends ArrayAdapter<FileDisplayLine>
 	
 	
 	/* Overridden methods */
-	
-	/**
-	 * Method setups up the view.
-	 */
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+
+	@NonNull
+    @Override
+	public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 		
 		// Get the view and inflate.
 		View v = convertView;
@@ -75,7 +75,7 @@ public class FileArrayAdapter extends ArrayAdapter<FileDisplayLine>
 			if (itemDetails != null)
 				itemDetails.setText(o.getData());
 			if (itemSize != null) {
-				if (o.getType() == FileDisplayLine.FILETYPE_FILE) {
+				if (FileDisplayLine.FILETYPE_FILE.equals(o.getType())) {
 					itemSize.setText(humanReadableByteCount(o.getSize(), true));
 				} else {
 					itemSize.setText("");
@@ -84,9 +84,10 @@ public class FileArrayAdapter extends ArrayAdapter<FileDisplayLine>
 			
 			// Show correct icon (folder or file).
 			if (icon != null) {
-				if (o.getType() == FileDisplayLine.FILETYPE_FILE) {
+				if (FileDisplayLine.FILETYPE_FILE.equals(o.getType())) {
 					icon.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_file_24dp));
-				} else if (o.getType() == FileDisplayLine.FILETYPE_FOLDER || o.getType() == FileDisplayLine.FILETYPE_PARENT) {
+				} else if (FileDisplayLine.FILETYPE_FOLDER.equals(o.getType()) ||
+                        FileDisplayLine.FILETYPE_PARENT.equals(o.getType())) {
 					icon.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_folder_24dp));
 				}
 			}
@@ -111,11 +112,11 @@ public class FileArrayAdapter extends ArrayAdapter<FileDisplayLine>
 	/**
 	 * Method returns a readable file size based on the arguments
 	 * bytes and si.
-	 * @param bytes
-	 * @param si
-	 * @return
+	 * @param bytes The size in bytes.
+	 * @param si Use SI units.
+	 * @return A string containing readable file size.
 	 */
-	public static String humanReadableByteCount(long bytes, boolean si)
+	private String humanReadableByteCount(long bytes, boolean si)
 	{
 		int unit = si ? 1000 : 1024;
 		if (bytes < unit) return bytes + " B";
