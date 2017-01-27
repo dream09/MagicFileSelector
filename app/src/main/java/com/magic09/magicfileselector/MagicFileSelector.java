@@ -433,7 +433,7 @@ public class MagicFileSelector extends AppCompatActivity {
 	/**
 	 * Method updates the file list for the the argument path using
 	 * the appropriate reader.
-	 * @param path
+	 * @param path The path to scan.
 	 */
 	private void updateFileList(String path) {
 		if (SmbMode) {
@@ -448,7 +448,8 @@ public class MagicFileSelector extends AppCompatActivity {
 	/**
 	 * Method reads the current directory and populates the displayed
 	 * list.
-	 * @param aFile
+	 * @param aFile The required file.
+     * @return A list of folders and files.
 	 */
 	private List<FileDisplayLine> populateFileList(File aFile)
 	{
@@ -492,7 +493,8 @@ public class MagicFileSelector extends AppCompatActivity {
 	/**
 	 * Method reads the current directory and returns a
 	 * list of folders and files.
-	 * @param aFile
+	 * @param aFile The required SMB file.
+     * @return A list of folders and files.
 	 */
 	private List<FileDisplayLine> populateSmbFileList(SmbFile aFile)
 	{
@@ -540,8 +542,8 @@ public class MagicFileSelector extends AppCompatActivity {
 	
 	/**
 	 * Method returns the last folder name in the argument path.
-	 * @param path
-	 * @return
+	 * @param path The path.
+	 * @return The top folder name in this path.
 	 */
 	private String foldernameFromPath(String path) {
 		String result = path;
@@ -609,7 +611,7 @@ public class MagicFileSelector extends AppCompatActivity {
 		
 		/**
 		 * Constructor.
-		 * @param path
+         * @param path The path to scan.
 		 */
 		public LocalRead(String path) {
 			this.path = path;
@@ -656,7 +658,8 @@ public class MagicFileSelector extends AppCompatActivity {
 		
 		/**
 		 * Constructor.
-		 * @param context
+		 * @param context The required context.
+         * @param path The path to scan.
 		 */
 		public SMBRead(Context context, String path) {
 			this.context = context;
