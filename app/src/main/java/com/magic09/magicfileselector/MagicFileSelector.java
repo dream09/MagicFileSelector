@@ -71,10 +71,12 @@ public class MagicFileSelector extends AppCompatActivity {
 	private String helpTitle;
 	private String helpText;
 	private ShowcaseView showcaseView;
+    private boolean simplePath;
 	
 	public static final int FILE_REQUEST = 102030;
 	public static final String MODE_FILE = "file";								// File selection mode (default)
 	public static final String MODE_FOLDER = "folder";							// Folder selection mode.
+    public static final String DATA_KEY_SIMPLE_PATH = "dataKeySimplePath";		// Display simple path.
 	public static final String DATA_KEY_HELP_DISPLAY = "dataKeyHelpDisplay";	// Display help.
 	public static final String DATA_KEY_HELP_TITLE = "dataKeyHelpTitle";		// Custom help title.
 	public static final String DATA_KEY_HELP_TEXT = "dataKeyHelpText";			// Custom help text.
@@ -144,7 +146,7 @@ public class MagicFileSelector extends AppCompatActivity {
 				titleView.setEllipsize(TextUtils.TruncateAt.START);
 			}
 		}
-		
+
 		// Get data sent (if any).
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -158,6 +160,7 @@ public class MagicFileSelector extends AppCompatActivity {
 			displayHelp = extras.getBoolean(DATA_KEY_HELP_DISPLAY);
 			helpTitle = extras.getString(DATA_KEY_HELP_TITLE);
 			helpText = extras.getString(DATA_KEY_HELP_TEXT);
+            simplePath = extras.getBoolean(DATA_KEY_SIMPLE_PATH, false);
 			
 			// Check if browsing locally (default) or on network (ip address).
 			if (myFolder != null && myFolder.length() > 0) {
@@ -337,10 +340,11 @@ public class MagicFileSelector extends AppCompatActivity {
 				showcaseView.hide();
 			
 			FileDisplayLine o = adapter.getItem(position);
-			if (o.getType() == FileDisplayLine.FILETYPE_FOLDER || o.getType() == FileDisplayLine.FILETYPE_PARENT) {
+			if (FileDisplayLine.FILETYPE_FOLDER.equals(o.getType()) ||
+                    FileDisplayLine.FILETYPE_PARENT.equals(o.getType())) {
 				updateFileList(o.getPath());
 			}
-			if (o.getType() == FileDisplayLine.FILETYPE_FILE) {
+			if (FileDisplayLine.FILETYPE_FILE.equals(o.getType())) {
 				Intent data = new Intent();
 				data.putExtra(MagicFileSelector.DATA_KEY_RETURN, o.getPath());
 				setResult(RESULT_OK, data);
@@ -551,6 +555,45 @@ public class MagicFileSelector extends AppCompatActivity {
 		
 		return result;
 	}
+
+    /**
+     * Method updates the path displayed in the action bar
+     * based on the argument path and in line with DATA_KEY_SIMPLE_PATH
+     * extra received.
+     * @param path The path to display in action bar.
+     */
+    private void updateDisplayedPath(String path) {
+        if (simplePath) {
+            setTitle(getSimplePath(path));
+        } else {
+            setTitle(path);
+        }
+    }
+
+    /**
+     * Method returns the argument fullPath without the external storage dir
+     * file path.
+     * @param fullPath The path to remove from.
+     * @return The path without external storage dir path.
+     */
+    private String getSimplePath(String fullPath) {
+
+        // Remove sdcard path
+        String sourcePath = Environment.getExternalStorageDirectory().getPath();
+        String returnPath = fullPath.replace(sourcePath, "");
+
+        // Trim leading "/"
+        if (returnPath.length() > 0 && returnPath.substring(0, 1).equals("/")) {
+            returnPath = returnPath.substring(1, returnPath.length());
+        }
+
+        // Add trailing "/"
+        if (returnPath.length() > 0) {
+            returnPath += "/";
+        }
+
+        return returnPath;
+    }
 	
 	
 	
@@ -589,7 +632,7 @@ public class MagicFileSelector extends AppCompatActivity {
 			if (result != null) {
 				adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, result);
 				mainList.setAdapter(adapter);
-				setTitle(path);
+                updateDisplayedPath(path);
 			}
 		}
 	}
@@ -653,7 +696,7 @@ public class MagicFileSelector extends AppCompatActivity {
 			if (result != null) {
 				adapter = new FileArrayAdapter(MagicFileSelector.this, R.layout.magic_file_selector_view, result);
 				mainList.setAdapter(adapter);
-				setTitle(path);
+                updateDisplayedPath(path);
 			}
 			
 			pDialog.dismiss();
