@@ -85,11 +85,9 @@ public class FileArrayAdapter extends ArrayAdapter<FileDisplayLine>
 			// Show correct icon (folder or file).
 			if (icon != null) {
 				if (o.getType() == FileDisplayLine.FILETYPE_FILE) {
-					icon.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_poll_black_36dp));
-					icon.setRotation(90f);
+					icon.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_file_24dp));
 				} else if (o.getType() == FileDisplayLine.FILETYPE_FOLDER || o.getType() == FileDisplayLine.FILETYPE_PARENT) {
-					icon.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_folder_black_36dp));
-					icon.setRotation(0);
+					icon.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_folder_24dp));
 				}
 			}
 		}
