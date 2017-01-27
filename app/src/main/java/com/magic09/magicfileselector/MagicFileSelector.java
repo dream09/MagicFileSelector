@@ -469,10 +469,13 @@ public class MagicFileSelector extends AppCompatActivity {
 			e.printStackTrace();
 		}
 		
-		// Sort the directory and file lists then add the files onto the end of the directory list.
+		// Sort the directory and file lists then add the files onto the end of the directory list
+        // if required (in file mode)
 		Collections.sort(folders);
 		Collections.sort(files);
-		folders.addAll(files);
+        if (myMode == null || myMode.equals(MODE_FILE)) {
+            folders.addAll(files);
+        }
 		
 		// Check if we need a parent director option.
 		if (!aFile.getName().equalsIgnoreCase(Environment.getExternalStorageDirectory().getName())) {
@@ -514,11 +517,14 @@ public class MagicFileSelector extends AppCompatActivity {
 		} catch (SmbException e) {
 			e.printStackTrace();
 		}
-		
-		// Sort the directory and file lists then add the files onto the end of the directory list.
-		Collections.sort(folders);
-		Collections.sort(files);
-		folders.addAll(files);
+
+        // Sort the directory and file lists then add the files onto the end of the directory list
+        // if required (in file mode)
+        Collections.sort(folders);
+        Collections.sort(files);
+        if (myMode == null || myMode.equals(MODE_FILE)) {
+            folders.addAll(files);
+        }
 		
 		// Check if we need a parent director option.
 		if (!aFile.getPath().equalsIgnoreCase(smbURL)) {
